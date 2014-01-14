@@ -12,23 +12,31 @@ var mongoUri =  process.env.MONGOLAB_URI  ||
 mongo.Db.connect(mongoUri, function (err, db) {
   if(err) throw err;
 
+  var collection = db.collection('movies');
+  collection.remove(function(){});
+
   var total = -1;
   var itemCount = 0;
-  var collection = db.collection('movies');
 
-  var insertCallback = function(err,rs) {
+  var insertCallback = function(err, rs, movie) {
     if(err) {
       console.log('!!!!!!  ERROR !!!!!!!!!');
       console.log('MESSAGE:', err);
-      throw err;
-      return;
+      console.log('movie title:', movie.title);
+      console.dir(movie);
+
+      db.close();
+      process.kill();
     }
 
     process.stdout.write(itemCount.toString());
     process.stdout.write(", ");
     itemCount++;
+    
+    // THE END
     if(itemCount >= total){
-      collection.remove(function(){});
+      //show the last one
+      console.dir(movie);      
       db.close();
     }
   }
@@ -41,9 +49,31 @@ mongo.Db.connect(mongoUri, function (err, db) {
       console.log('movies:', total);
       
       for (var i = 0; i < total; i++) {
-        //var movie = _.pick(result.videodb.movie[i], ['title']);
-        var movie = result.videodb.movie[i];
-        collection.insert(movie, {safe: true}, insertCallback);
+        var movie = _.omit(result.videodb.movie[i], [
+            'fanart'
+          , 'art'
+        ]);
+
+        // thumb
+        var longThumbs = _.pluck(movie.thumb, ['_'])
+        var plucked = _.pluck(movie.thumb, ['$']);
+        var previewThumbs = _.pluck(plucked, ['preview']);
+        movie.thumb = [];
+        
+        for (var j = 0; j < previewThumbs.length; j++) {
+          thumbObj = {name: "thumb-" + (j+1)};
+          thumbObj.prevThumb = previewThumbs[j];
+          thumbObj.longThumb = longThumbs[j];
+          movie.thumb.push(thumbObj);
+        };
+
+        //console.dir(movie.thumb);
+        //db.close();
+        //process.kill();
+
+        collection.insert(movie, {safe: true}, function(err,rs) {
+          insertCallback(err, rs, movie);
+        });
       };
 
       console.log('Done.');
