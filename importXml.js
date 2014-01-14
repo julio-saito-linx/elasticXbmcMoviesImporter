@@ -33,7 +33,6 @@ mongo.Db.connect(mongoUri, function (err, db) {
     }
   }
 
-
   var parser = new xml2js.Parser();
   
   parser.addListener('end', function(result) {
@@ -42,7 +41,8 @@ mongo.Db.connect(mongoUri, function (err, db) {
       console.log('movies:', total);
       
       for (var i = 0; i < total; i++) {
-        var movie = _.pick(result.videodb.movie[i], ['title']);
+        //var movie = _.pick(result.videodb.movie[i], ['title']);
+        var movie = result.videodb.movie[i];
         collection.insert(movie, {safe: true}, insertCallback);
       };
 
