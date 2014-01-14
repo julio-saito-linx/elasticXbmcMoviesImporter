@@ -1,4 +1,8 @@
-var mongo = require('mongodb');
+var mongo = require('mongodb')
+  , fs = require('fs')
+  , xml2js = require('xml2js')
+  , _ = require('underscore')
+;
 
 //MONGO-DB
 var mongoUri =  process.env.MONGOLAB_URI  ||
@@ -6,22 +10,61 @@ var mongoUri =  process.env.MONGOLAB_URI  ||
   //'mongodb://admin:admin@ds061198.mongolab.com:61198/heroku_app21107224';
   'mongodb://localhost:27017/xbmcMovies';
 
+
+
 mongo.Db.connect(mongoUri, function (err, db) {
   if(err) throw err;
 
+  var total = -1;
+  var itemCount = 0;
   var collection = db.collection('movies');
-  collection.insert({
-      moviename:"meu malvado favorito 2"
-    , createdAt: new Date()
-  }, function(){});
 
-  // Locate all the entries using find
-  collection.find().toArray(function(err, results) {
-      console.dir(results);
-      // Let's close the db
+  var insertCallback = function(err,rs) {
+    if(err) {
+      console.log('!!!!!!  ERROR !!!!!!!!!');
+      console.log('MESSAGE:', err);
+      throw err;
+      return;
+    }
+
+    process.stdout.write(itemCount.toString());
+    process.stdout.write(", ");
+    itemCount++;
+    if(itemCount >= total){
+      collection.remove(function(){});
       db.close();
+    }
+  }
+
+
+  var parser = new xml2js.Parser();
+  
+  parser.addListener('end', function(result) {
+      
+      total = result.videodb.movie.length;
+      console.log('movies:', total);
+      
+      for (var i = 0; i < total; i++) {
+        var movie = _.pick(result.videodb.movie[i], ['title']);
+        //console.dir(movie);
+        collection.insert(movie, {safe: true}, insertCallback);
+      };
+
+      //console.dir(result);
+      console.log('Done.');
   });
 
-  collection.remove(function(){});
+  fs.readFile(__dirname + '/xbmc_videodb_2014-01-09/videodb.xml', function(err, data) {
+      parser.parseString(data, function (err, result) {});
+      //parser.parseString(data);
+  });  
+
+  // Locate all the entries using find
+  // collection.find().toArray(function(err, results) {
+  //     console.dir(results);
+  //     // Let's close the db
+  // });
+
+  
 
 });
