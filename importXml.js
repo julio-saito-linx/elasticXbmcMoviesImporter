@@ -7,10 +7,7 @@ var mongo = require('mongodb')
 //MONGO-DB
 var mongoUri =  process.env.MONGOLAB_URI  ||
                 process.env.MONGOHQ_URL   ||
-  //'mongodb://admin:admin@ds061198.mongolab.com:61198/heroku_app21107224';
   'mongodb://localhost:27017/xbmcMovies';
-
-
 
 mongo.Db.connect(mongoUri, function (err, db) {
   if(err) throw err;
@@ -46,25 +43,14 @@ mongo.Db.connect(mongoUri, function (err, db) {
       
       for (var i = 0; i < total; i++) {
         var movie = _.pick(result.videodb.movie[i], ['title']);
-        //console.dir(movie);
         collection.insert(movie, {safe: true}, insertCallback);
       };
 
-      //console.dir(result);
       console.log('Done.');
   });
 
   fs.readFile(__dirname + '/xbmc_videodb_2014-01-09/videodb.xml', function(err, data) {
       parser.parseString(data, function (err, result) {});
-      //parser.parseString(data);
   });  
-
-  // Locate all the entries using find
-  // collection.find().toArray(function(err, results) {
-  //     console.dir(results);
-  //     // Let's close the db
-  // });
-
-  
 
 });
