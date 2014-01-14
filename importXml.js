@@ -1,31 +1,29 @@
-var request = require('request')
-  , fs = require('fs')
+var fs = require('fs')
   , xml2js = require('xml2js')
   , _ = require('underscore')
+  , elasticsearch = require('elasticsearch')
 ;
 
-var total = -1;
-var itemCount = 0;
+var client = new elasticsearch.Client({
+  host: 'localhost:9200',
+  log: 'trace'
+});
 
-var insertCallback = function(err, rs, movie) {
-  if(err) {
-    console.log('!!!!!!  ERROR !!!!!!!!!');
-    console.log('MESSAGE:', err);
-    console.log('movie title:', movie.title);
-    console.dir(movie);
+// Send a HEAD request to "/?hello=elasticsearch"
+// and allow up to 1 second for it to complete.
+client.ping({
+  requestTimeout: 1000,
+  // undocumented params are appended to the query string
+  hello: "elasticsearch!"
+}, function (error) {
+  if (error) {
+    console.error('elasticsearch cluster is down!');
     process.kill();
+  } else {
+    console.log('All is well');
   }
+});
 
-  process.stdout.write(itemCount.toString());
-  process.stdout.write(", ");
-  itemCount++;
-  
-  // THE END
-  if(itemCount >= total){
-    //show the last one
-    console.dir(movie);      
-  }
-}
 
 var parser = new xml2js.Parser();
 parser.addListener('end', function(result) {
@@ -52,35 +50,29 @@ parser.addListener('end', function(result) {
         movie.thumb.push(thumbObj);
       };
 
-      request(
-        { method: 'POST'
-        , uri: 'http://localhost:9200/movies/movie/' + i
-        , body: JSON.stringify(movie)
-        // , multipart:
-        //   [ { 'content-type': 'application/json'
-        //     ,  body: JSON.stringify({foo: 'bar', _attachments: {'message.txt': {follows: true, length: 18, 'content_type': 'text/plain' }}})
-        //     }
-        //   , { body: 'I am an attachment' }
-        //   ]
+      client.create({
+        index: 'movies',
+        type: 'movie',
+        id: (i+1),
+        body: movie
+        // body: {
+        //   title: 'Test 1',
+        //   tags: ['y', 'z'],
+        //   published: true,
+        //   published_at: '2013-01-01',
+        //   counter: 1
+        // }
+      }, function (error, response) {
+        if (error) {
+          console.error(error);
+          process.kill();
         }
-      , function (error, response, body) {
-          console.log(body) // Print the google web page.
-          //process.kill();
+      });
 
-          // if(response.statusCode == 201){
-          //   console.log('document saved as: http://mikeal.iriscouch.com/testjs/'+ rand)
-          // } else {
-          //   console.log('error: '+ response.statusCode)
-          //   console.log(body)
-          // }
-        }
-      )
     };
-
-    console.log('Done.');
 });
 
 fs.readFile(__dirname + '/xbmc_videodb_2014-01-09/videodb.xml', function(err, data) {
     parser.parseString(data, function (err, result) {});
-});  
+});
 
