@@ -56,12 +56,6 @@ parser.addListener('end', function(result) {
         { method: 'POST'
         , uri: 'http://localhost:9200/movies/movie/' + i
         , body: JSON.stringify(movie)
-        // , multipart:
-        //   [ { 'content-type': 'application/json'
-        //     ,  body: JSON.stringify({foo: 'bar', _attachments: {'message.txt': {follows: true, length: 18, 'content_type': 'text/plain' }}})
-        //     }
-        //   , { body: 'I am an attachment' }
-        //   ]
         }
       , function (error, response, body) {
           console.log(body) // Print the google web page.
@@ -80,7 +74,7 @@ parser.addListener('end', function(result) {
     console.log('Done.');
 });
 
-fs.readFile(__dirname + '/xbmc_videodb_2014-01-09/videodb.xml', function(err, data) {
+fs.readFile(__dirname + '/xbmc_videodb_2014-01-15/videodb.xml', function(err, data) {
     parser.parseString(data, function (err, result) {});
 });  
 
