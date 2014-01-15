@@ -5,8 +5,8 @@ var fs = require('fs')
 ;
 
 var client = new elasticsearch.Client({
-  host: 'localhost:9200',
-  log: 'trace'
+    host: 'localhost:9200'
+  , log: 'trace'
 });
 
 // Send a HEAD request to "/?hello=elasticsearch"
@@ -30,6 +30,8 @@ parser.addListener('end', function(result) {
     
     total = result.videodb.movie.length;
     console.log('movies:', total);
+
+    var myIndex = 1;
     
     for (var i = 0; i < total; i++) {
       var movie = _.omit(result.videodb.movie[i], [
@@ -51,28 +53,33 @@ parser.addListener('end', function(result) {
       };
 
       client.create({
-        index: 'movies',
-        type: 'movie',
-        id: (i+1),
-        body: movie
-        // body: {
-        //   title: 'Test 1',
-        //   tags: ['y', 'z'],
-        //   published: true,
-        //   published_at: '2013-01-01',
-        //   counter: 1
-        // }
-      }, function (error, response) {
-        if (error) {
-          console.error(error);
-          process.kill();
+          index: 'movies',
+          type: 'movie',
+          id: myIndex,
+          body: movie
         }
-      });
+      , function (error, response) {
+          console.dir(error);
+          console.dir(response);
+          process.kill();
 
+          if (error) {
+            console.error(error);
+            process.kill();
+          }
+        }
+      );
+
+      process.kill();
+
+      myIndex++;
     };
+
+    //finished!
+    process.kill();
 });
 
-fs.readFile(__dirname + '/xbmc_videodb_2014-01-09/videodb.xml', function(err, data) {
+fs.readFile(__dirname + '/xbmc_videodb_2014-01-15/videodb.xml', function(err, data) {
     parser.parseString(data, function (err, result) {});
 });
 
