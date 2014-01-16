@@ -1,0 +1,15 @@
+{
+  "asi": false,
+  "loopfunc": true,
+  "white": true,
+  "undef": true,
+  "browser": true,
+  "trailing": true,
+  "indent": 2,
+  "node": true,
+  "curly": true,
+  "validthis": true,
+  "laxcomma": true,
+  "browser": true,
+  "devel": true
+}
