@@ -9,7 +9,8 @@
     "request": "~2.31.0",
     "wildemitter": "0.0.5",
     "zepto-node": "~1.0.0",
-    "domino": "~1.0.14"
+    "domino": "~1.0.14",
+    "async": "~0.2.9"
   },
   "devDependencies": {},
   "scripts": {

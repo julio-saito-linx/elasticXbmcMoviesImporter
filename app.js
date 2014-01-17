@@ -12,15 +12,29 @@
   };
 
   app.loadImdbInfo = function (moviesJSON) {
-    for (var i = 0; i < moviesJSON.length; i++) {
-      var movie = moviesJSON[i];
-      imdbInfoAdd.getImdbInfo(movie);
-    }
-  };
+    var async = require("async");
+    
+    function getImdb(movie, callback) {
+      imdbInfoAdd.getImdbInfo(movie).then(function(imdbInfo) {
 
-  app.saveImdbInfo = function (movie, imdbInfo) {
-    movie.imdbInfo = imdbInfo;
-    app.saveElasticSearchDb(movie);
+        movie.imdbInfo = imdbInfo;
+        app.saveElasticSearchDb(movie);
+        
+        callback();
+      });
+    }
+
+    // six processes simultaneously
+    var queue = async.queue(getImdb, 4);
+
+    queue.drain = function() {
+        console.log("All IMDB ratings was saved");
+    };
+
+    // Queue your files for upload
+    for (var i = 0; i < moviesJSON.length; i++) {
+      queue.push(moviesJSON[i]);
+    }
   };
 
   app.saveElasticSearchDb = function (movie) {
@@ -42,7 +56,6 @@
   // add event listeners
   xbmcImporter.on('jsonCreated', app.processJsonResult);
   resultXbmcProcessor.on('jsonProcessed', app.loadImdbInfo);
-  imdbInfoAdd.on('imdbInfoGot', app.saveImdbInfo);
 
   console.info('\nGetting XML');
   xbmcImporter.importXml(__dirname + '/xbmcFile/videodb.xml');
