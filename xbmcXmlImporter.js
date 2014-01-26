@@ -17,6 +17,8 @@
   });
 
   XbmcXmlImporter.prototype.importXml = function (xmlPath) {
+    console.log('reading XML:', xmlPath);
+
     var parser = new xml2js.Parser();
     parser.addListener('end', this.processMovies.bind(this));
     
@@ -29,6 +31,8 @@
   XbmcXmlImporter.prototype.processMovies = function (result) {
     var movies = [];
     var total = result.videodb.movie.length;
+
+    console.log('XML itens count:', total);
     
     //parsing each movie
     for (var i = 0; i < total; i++) {
