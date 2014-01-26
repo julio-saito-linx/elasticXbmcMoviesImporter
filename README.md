@@ -4,8 +4,8 @@
 
 #install:
 
-   http://www.java.com/pt_BR/download/manual.jsp#win
-   http://www.elasticsearch.org/download/
+    http://www.java.com/pt_BR/download/manual.jsp#win
+    http://www.elasticsearch.org/download/
 
 #copy videodb.xml to a new folder
 	
