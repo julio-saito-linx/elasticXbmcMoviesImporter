@@ -3,7 +3,7 @@
   var XbmcImporter = require('./xbmcXmlImporter');
   var ResultXbmcProcessor = require('./resultXbmcProcessor');
   var ImdbInfoAdd = require('./imdbInfoAdd');
-  var ElasticSearchSaver = require('./elasticSearchSaver');
+  var ElasticSearchRequest = require('./elasticSearchRequest');
 
   var app = {};
 
@@ -18,7 +18,7 @@
     console.log('app.loadImdbInfo...');
 
     function getImdb(movie, callback) {
-      var moviesDb = app.elasticSearchSaver.filterByImdbId(movie.idImdb);
+      var moviesDb = app.elasticSearchRequest.filterByImdbId(movie.idImdb);
 
       if (moviesDb.length === 0) {
         console.log('new movie  :', movie.title);
@@ -53,7 +53,7 @@
   };
 
   app.saveElasticSearchDb = function (movie) {
-    app.elasticSearchSaver.save(movie).then(
+    app.elasticSearchRequest.save(movie).then(
       function () {
         console.log('saveElasticSearchDb...saved', movie.title);
       },
@@ -73,13 +73,13 @@
   var xbmcImporter = new XbmcImporter();
   var resultXbmcProcessor = new ResultXbmcProcessor();
   var imdbInfoAdd = new ImdbInfoAdd();
-  app.elasticSearchSaver = new ElasticSearchSaver();
+  app.elasticSearchRequest = new ElasticSearchRequest();
 
   // add event listeners
   xbmcImporter.on('jsonCreated', app.processJsonResult);
   resultXbmcProcessor.on('jsonProcessed', app.loadImdbInfo);
 
-  app.elasticSearchSaver.getAll().done(function (allData) {
+  app.elasticSearchRequest.getAll().done(function (allData) {
     console.log('existing itens:', allData.length);
     app.allMoviesOnDatabase = allData;
 
