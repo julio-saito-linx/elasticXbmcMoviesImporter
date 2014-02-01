@@ -40,5 +40,28 @@
     return defer.promise;
   };
 
+  ImdbInfoAdd.prototype.getIMDB_ptbr_info = function (movie) {
+    var defer = q.defer();
+    var url = 'http://www.imdb.com/title/' + movie.idImdb + '/releaseinfo';
+    var imdbInfos = {};
+    request({'uri': url}, function (err, resp, body) {
+      if(err){
+        return defer.reject(err);
+      }
+
+      var window = domino.createWindow();
+      var $ = Zepto(window);
+      $('body').append(body);
+      var tds = $('#akas td:contains(Brazil)').parent().find('td');
+      imdbInfos.title_ptbr = $(tds[1]).text();
+
+      console.log(movie.title, movie.idImdb, imdbInfos.title_ptbr);
+
+      return defer.resolve(imdbInfos);
+    }.bind(this));
+
+    return defer.promise;
+  };
+
   module.exports = ImdbInfoAdd;
 })();
