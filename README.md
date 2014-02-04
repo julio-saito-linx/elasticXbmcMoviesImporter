@@ -1,4 +1,8 @@
-==elastic search XBMC Movies Importer
+#Elastic Search XBMC Movies Importer
+- import the videodb.xml to an elasticsearch db.
+- get "rating" from imdb
+- get "pt-BR title" from imdb
+- merge duplicated itens
 
 #Instalation:
 
@@ -12,14 +16,14 @@
 
 #Running
 
-##star importing
+##1) importing
 
     node import_xbmc_xml_to_elasticsearch.js
 
-##get imdb rating and pt-BR title
+##2) get imdb rating and pt-BR title
 
     node request_imdb_info.js
 
-##remove duplicated
+##3) merge duplicated
 
     node merge_duplicated_imdb_id.js
