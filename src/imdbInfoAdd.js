@@ -31,9 +31,6 @@
       var $ = Zepto(window);
       $('body').append(body);
       imdbInfos.rating = $('.star-box-giga-star').text();
-
-      console.log(movie.title, movie.idImdb, imdbInfos.rating);
-
       return defer.resolve(imdbInfos);
     }.bind(this));
 
@@ -54,8 +51,6 @@
       $('body').append(body);
       var tds = $('#akas td:contains(Brazil)').parent().find('td');
       imdbInfos.title_ptbr = $(tds[1]).text();
-
-      console.log(movie.title, movie.idImdb, imdbInfos.title_ptbr);
 
       return defer.resolve(imdbInfos);
     }.bind(this));

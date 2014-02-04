@@ -26,7 +26,6 @@
       , body: JSON.stringify(movie)
       }
       , function (error, response, body) {
-          console.log(body);
           if (error) {
             defer.reject(error);
           }
@@ -47,7 +46,6 @@
       //, body: JSON.stringify(movie)
       }
       , function (error, response, body) {
-          console.log(body);
           if (error) {
             defer.reject(error);
           }

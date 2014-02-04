@@ -1,5 +1,5 @@
 'use strict';
-var   ElasticSearchRequest = require('./elasticSearchRequest')
+var   ElasticSearchRequest = require('./src/elasticSearchRequest')
     , Emitter = require('wildemitter')
     , _ = require('underscore')
 ;

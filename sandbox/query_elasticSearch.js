@@ -1,4 +1,4 @@
-var ElasticSearchRequest = require('../elasticSearchRequest')
+var ElasticSearchRequest = require('./src/elasticSearchRequest')
 ;
 
 var elasticSearchRequest = new ElasticSearchRequest();
