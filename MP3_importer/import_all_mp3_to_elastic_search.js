@@ -53,7 +53,6 @@ console.info('-----------------------------');
 console.info('MP3 importer to ElasticSearch');
 console.info('-----------------------------');
 
-fsHelper.on('all_files_txt_created', proccess_all_files, this);
 
 // ** SET all folders here
 fsHelper.addFolder('/media/julio/4 H-MP3 (1,36 TB)/');
@@ -61,39 +60,43 @@ fsHelper.addFolder('/media/julio/B21AB1E71AB1A92D/soulseek-downloads/complete/')
 fsHelper.addFolder('/media/julio/2GB, new/Mp3/');
 fsHelper.addFolder('/media/julio/Files/_MP3/');
 fsHelper.addFolder('/home/julio/Música/');
+
+fsHelper.on('all_files_txt_removed', fsHelper.executeUnixFind);
+fsHelper.on('all_files_txt_created', proccess_all_files, this);
+
 fsHelper.removeAllFilesTxt();
-fsHelper.executeUnixFind();
 
-var proccess_all_files = function (allFiles) {
+var proccess_all_files = function () {
+  fsHelper.readFile();
 
-  // all files
-  console.log('all files  :', allFiles.length);
+  // // all files
+  // console.log('all files  :', allFiles.length);
   
-  // filter audio files
-  var audioFiles = fsHelper.filter(allFiles, ['mp3', 'flac', 'm4a']);
-  console.log('audio files:', audioFiles.length);
+  // // filter audio files
+  // var audioFiles = fsHelper.filter(allFiles, ['mp3', 'flac', 'm4a']);
+  // console.log('audio files:', audioFiles.length);
 
-  bar = new ProgressBar('tagging [:bar] :percent :etas', {
-      total: audioFiles.length
-    , complete: '='
-    , incomplete: ' '
-    , width: 80
-    }
-  );
+  // bar = new ProgressBar('tagging [:bar] :percent :etas', {
+  //     total: audioFiles.length
+  //   , complete: '='
+  //   , incomplete: ' '
+  //   , width: 80
+  //   }
+  // );
 
-  for (var i = 0; i < audioFiles.length; i++) {
-    var audioFile = audioFiles[i];
+  // for (var i = 0; i < audioFiles.length; i++) {
+  //   var audioFile = audioFiles[i];
 
-    // get ID3 tags
-    ffmetadata.read(audioFile.fullPath, function (err, data) {
-      if (err) {
-        console.error('Error reading metadata, err');
-      }
-      else {
-        emitter.emit('got_id3', audioFile, data);
-      }
-    });
-  }
+  //   // get ID3 tags
+  //   ffmetadata.read(audioFile.fullPath, function (err, data) {
+  //     if (err) {
+  //       console.error('Error reading metadata, err');
+  //     }
+  //     else {
+  //       emitter.emit('got_id3', audioFile, data);
+  //     }
+  //   });
+  // }
 
 };
 
