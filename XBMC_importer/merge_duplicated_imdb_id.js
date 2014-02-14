@@ -1,8 +1,14 @@
 'use strict';
-var   ElasticSearchRequest = require('./src/elasticSearchRequest')
+var   ElasticSearchRequest = require('../src/elasticSearchRequest')
     , Emitter = require('wildemitter')
     , _ = require('underscore')
 ;
+
+console.info('--------------------');
+console.info('Remove duplicated from ElasticSearch');
+console.info(' by IMDB id');
+console.info(' with inspector');
+console.info('--------------------');
 
 var vent = new Emitter();
 vent.on('all_duplicated_movies_found', getNextMovie);
@@ -12,6 +18,10 @@ vent.on('getNextMovie', getNextMovie);
 var duplicatedMovieList = [];
 
 var elasticSearchRequest = new ElasticSearchRequest();
+elasticSearchRequest.initialize({
+  base_url: 'http://localhost:9200/movies/movie/'
+});
+
 elasticSearchRequest.getAll().done(function (results) {
 
   var sources = _.map(results, function (item) {
@@ -73,7 +83,7 @@ function getNextMovie() {
 
   if (!duplicatedMovie) {
     console.log('THE END. exiting...');
-    setTimeout(function() {
+    setTimeout(function () {
       process.exit();
     }, 1000);
     return;
@@ -121,12 +131,6 @@ function merge(duplicatedMovie) {
     vent.emit('getNextMovie');
   });
 
-
-  // console.log('------------------------------------------------------------------');
-  // duplicatedMovie.movies.forEach(function (movie) {
-  //   console.log(' -', movie.basepath[0]);
-  // });
-
 }
 
-//getNextMovie();
+

@@ -2,8 +2,8 @@ var ffmetadata = require('ffmetadata'),
     fs = require('fs');
 
 // Read song.mp3 metadata
-ffmetadata.read('/home/julio/Música/RIPPED/Varios\ -\ Tributo\ a\ Grandes\ Poetas\ da\ Música\ Brasileira\ CD5\ -\ Lupicinio\ Rodrigues/01\ -\ Varios\ -\ Nervos\ de\ Aco_Paulinho\ da\ Viola.mp3', function(err, data) {
-    if (err) console.error('Error reading metadata, err');
+ffmetadata.read('11. kashmere stage band - kashmere.mp3', function(err, data) {
+    if (err) console.error('Error reading metadata, err', err);
     else console.log(data);
 });
 

@@ -20,31 +20,126 @@ var getNextId = function () {
   return ++id;
 };
 
-// emitter.on('got_id3', function(audioFile, data) {
-//   data.id = getNextId();
-//   data.file = audioFile;
+var totalElastic = 0;
+emitter.on('got_id3', function (audioFile, data) {
+  if (!data) {
+    return;
+  }
 
-//   elasticSearchRequest.save(data).then(
-//     function (body) {
-//       //console.log(body);
-//     },
-//     function (error) {
-//       console.log('saveElasticSearchDb...error', error);
-//     }
-//   );
-// });
+  data.id = getNextId();
+  data.file = audioFile;
+
+  //SUMARY
+  if (data.id % 100 === 0) {
+    console.log(data.id, 'id3:', totalTagging, 'elastic:', totalElastic);
+    totalTagging = 0;
+    totalElastic = 0;
+  }
+
+  var startElastic = new Date().getTime();
+
+  elasticSearchRequest.save(data).then(
+    function (body) {
+      var endElastic = new Date().getTime();
+      totalElastic += (endElastic - startElastic);
+
+      emitter.emit('elasticSearch_saved', body);
+    },
+    function (error) {
+      console.log('saveElasticSearchDb...error', error);
+    }
+  );
+});
 
 
 // var timer;
-// emitter.on('got_id3', function(audioFile, data) {
+// emitter.on('elasticSearch_saved', function(body) {
 //   timer = setInterval(function(){
-//     bar.tick(id);
+//     bar.tick();
 //     if (bar.complete) {
 //       console.log('\ncomplete\n');
 //       clearInterval(timer);
+//       process.exit();
 //     }
-//   }, 100);
+
+//   }, 1000);
 // });
+
+var totalTagging = 0;
+
+var readMetadata = function (audioFile, callback) {
+
+  var startTagging = new Date().getTime();
+
+  // get ID3 tags
+  ffmetadata.read(audioFile.fullPath, function (err, data) {
+    if (err) {
+      console.error('Error reading metadata, err', err);
+    }
+
+    var endTagging = new Date().getTime();
+    totalTagging += (endTagging - startTagging);
+
+    callback();
+    emitter.emit('got_id3', audioFile, data);
+  });
+
+};
+
+
+var read_all_files_txt = function () {
+  fsHelper.readFile();
+};
+
+var allFiles = [];
+
+var process_lines_to_files = function (allLines) {
+  console.log(allLines.length);
+  var allFilePaths = allLines.split('\n');
+  console.log('allFilePaths:', allFilePaths.length);
+
+  console.log('processing all files...');
+  for (var i = allFilePaths.length - 1; i >= 0; i--) {
+    var filePath = allFilePaths[i];
+    var processedFile = fsHelper.processFile(filePath);
+    allFiles.push(processedFile);
+  }
+  
+  console.log('filtering only audio files...');
+  var audioFiles = fsHelper.filterByExtension(allFiles, ['mp3', 'flac', 'm4a']);
+  console.log('audio files', audioFiles.length);
+
+
+  bar = new ProgressBar('tagging [:bar] :percent :etas', {
+      total: audioFiles.length
+    , complete: '='
+    , incomplete: ' '
+    , width: 80
+    }
+  );
+
+  //TODO
+  //for (var i = 0; i < audioFiles.length; i++) {
+
+
+
+
+  var async = require('async');
+  var queue = async.queue(readMetadata, 5);
+
+  queue.drain = function () {
+    process.stdout.write('\n-------\nThe End\n-------\n');
+  };
+
+  // Queue your files
+  for (var j = 0; j < audioFiles.length; j++) {
+    var audioFile = audioFiles[j];
+    queue.push(audioFile);
+  }
+
+};
+
+
 
 
 
@@ -62,41 +157,7 @@ fsHelper.addFolder('/media/julio/Files/_MP3/');
 fsHelper.addFolder('/home/julio/Música/');
 
 fsHelper.on('all_files_txt_removed', fsHelper.executeUnixFind);
-fsHelper.on('all_files_txt_created', proccess_all_files, this);
+fsHelper.on('all_files_txt_created', read_all_files_txt, this);
+fsHelper.on('all_file_read', process_lines_to_files);
 
-fsHelper.removeAllFilesTxt();
-
-var proccess_all_files = function () {
-  fsHelper.readFile();
-
-  // // all files
-  // console.log('all files  :', allFiles.length);
-  
-  // // filter audio files
-  // var audioFiles = fsHelper.filter(allFiles, ['mp3', 'flac', 'm4a']);
-  // console.log('audio files:', audioFiles.length);
-
-  // bar = new ProgressBar('tagging [:bar] :percent :etas', {
-  //     total: audioFiles.length
-  //   , complete: '='
-  //   , incomplete: ' '
-  //   , width: 80
-  //   }
-  // );
-
-  // for (var i = 0; i < audioFiles.length; i++) {
-  //   var audioFile = audioFiles[i];
-
-  //   // get ID3 tags
-  //   ffmetadata.read(audioFile.fullPath, function (err, data) {
-  //     if (err) {
-  //       console.error('Error reading metadata, err');
-  //     }
-  //     else {
-  //       emitter.emit('got_id3', audioFile, data);
-  //     }
-  //   });
-  // }
-
-};
-
+read_all_files_txt();

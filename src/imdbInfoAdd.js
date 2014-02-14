@@ -23,7 +23,7 @@
     var url = 'http://www.imdb.com/title/' + movie.idImdb;
     var imdbInfos = {};
     request({'uri': url}, function (err, resp, body) {
-      if(err){
+      if (err) {
         return defer.reject(err);
       }
 
@@ -42,7 +42,7 @@
     var url = 'http://www.imdb.com/title/' + movie.idImdb + '/releaseinfo';
     var imdbInfos = {};
     request({'uri': url}, function (err, resp, body) {
-      if(err){
+      if (err) {
         return defer.reject(err);
       }
 

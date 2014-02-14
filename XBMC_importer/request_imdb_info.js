@@ -1,7 +1,7 @@
 'use strict';
 (function () {
-  var ImdbInfoAdd = require('./src/imdbInfoAdd')
-    , ElasticSearchRequest = require('./src/elasticSearchRequest')
+  var ImdbInfoAdd = require('../src/imdbInfoAdd')
+    , ElasticSearchRequest = require('../src/elasticSearchRequest')
     , _ = require('underscore')
   ;
 
@@ -19,9 +19,8 @@
   app.getBulkIMDB_rating = function (moviesDb) {
     process.stdout.write('app.getBulkIMDB_rating...\n');
 
-    // 4 processes simultaneously
     var async = require('async');
-    var queue = async.queue(getIMDB, 4);
+    var queue = async.queue(getIMDB, 2);
 
     queue.drain = function () {
       process.stdout.write('\n-------\nThe End\n-------\n');
@@ -33,10 +32,8 @@
     }
 
     function getIMDB(movieDb, callback) {
-      if (!movieDb || !movieDb.imdbInfo) {
-        process.stdout.write('!imdbInfo not found: ' + movieDb);
-        callback();
-        return;
+      if (movieDb && !movieDb.imdbInfo) {
+        movieDb.imdbInfo = {};
       }
 
       if (_.isUndefined(movieDb.imdbInfo.rating)) {
@@ -92,14 +89,16 @@
   };
 
   console.info('--------------------');
-  console.info('XBMC movies importer');
-  console.info(' to ElasticSearch');
-  console.info('  with IMDB infos');
+  console.info(' Get IMDB infos');
   console.info('--------------------');
 
   // initialize
   var imdbInfoAdd = new ImdbInfoAdd();
   app.elasticSearchRequest = new ElasticSearchRequest();
+  
+  app.elasticSearchRequest.initialize({
+    base_url: 'http://localhost:9200/movies/movie/'
+  });
 
   // add event listeners
 

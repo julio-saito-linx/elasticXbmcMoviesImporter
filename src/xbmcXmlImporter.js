@@ -33,6 +33,7 @@
     var total = result.videodb.movie.length;
 
     console.log('XML itens count:', total);
+    console.log('processing movies...');
     
     //parsing each movie
     for (var i = 0; i < total; i++) {
@@ -60,6 +61,8 @@
       movies.push(movie);
     }
 
+    console.log('all movies processed');
+    console.log('triggering: "jsonCreated"');
     this.emit('jsonCreated', movies);
   };
 

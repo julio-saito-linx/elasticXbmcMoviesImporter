@@ -17,19 +17,23 @@
   });
 
   _.extend(ElasticSearchRequest.prototype, {
+
+    initialize: function (options) {
+      _.extend(this, options);
+    },
   
-    save: function (movie) {
+    save: function (object) {
       var defer = q.defer();
       request({
         method: 'POST'
-      , uri: 'http://localhost:9200/movies/movie/' + movie.id
-      , body: JSON.stringify(movie)
+      , uri: this.base_url + object.id
+      , body: JSON.stringify(object)
       }
       , function (error, response, body) {
           if (error) {
             defer.reject(error);
           }
-          else{
+          else {
             defer.resolve(body);
           }
         }.bind(this)
@@ -38,18 +42,37 @@
       return defer.promise;
     },
 
-    remove: function (movie) {
+    remove: function (object) {
       var defer = q.defer();
       request({
         method: 'DELETE'
-      , uri: 'http://localhost:9200/movies/movie/' + movie.id
-      //, body: JSON.stringify(movie)
+      , uri: this.base_url + object.id
+      //, body: JSON.stringify(object)
       }
       , function (error, response, body) {
           if (error) {
             defer.reject(error);
           }
-          else{
+          else {
+            defer.resolve(body);
+          }
+        }.bind(this)
+      );
+
+      return defer.promise;
+    },
+
+    removeAll: function () {
+      var defer = q.defer();
+      request({
+        method: 'DELETE'
+      , uri: this.base_url
+      }
+      , function (error, response, body) {
+          if (error) {
+            defer.reject(error);
+          }
+          else {
             defer.resolve(body);
           }
         }.bind(this)
@@ -63,8 +86,10 @@
       request(
         {
           method: 'GET',
-          uri: 'http://localhost:9200/movies/movie/_search?q=*:*',
-          body: JSON.stringify( {size:1000000} ) //nobody has more movies than that!
+          uri: this.base_url + '_search?q=*:*',
+          
+          //nobody has more objects than that!
+          body : JSON.stringify({size : 1000000})
         },
 
         function (error, response, body) {
