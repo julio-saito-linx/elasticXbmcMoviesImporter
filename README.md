@@ -6,23 +6,8 @@
     http://www.elasticsearch.org/download/
 
 ### importing XBMC exported file
-	follow instructions on /XBMC_importer/README.md
+	follow instructions on https://github.com/saitodisse/elasticXbmcMoviesImporter/blob/master/XBMC_importer/README.md
 
-###copy videodb.xml to a new folder
-	
-    mkdir xbmcFile
-    cp {where the file is}/videodb.xml xbmcFile/
+### importing MP3/Flac
+	follow instructions on https://github.com/saitodisse/elasticXbmcMoviesImporter/blob/master/MP3_importer/README.md
 
-##Running
-
-###1) importing
-
-    node import_xbmc_xml_to_elasticsearch.js
-
-###2) get imdb rating and pt-BR title
-
-    node request_imdb_info.js
-
-###3) merge duplicated
-
-    node merge_duplicated_imdb_id.js
