@@ -1,6 +1,7 @@
 'use strict';
-var ProgressBar = require('progress');
-var ffmetadata = require('ffmetadata');
+var get_info = require('./avprobe/get_info');
+var convert_to_json = require('./avprobe/convert_to_json');
+
 var Emitter = require('wildemitter');
 var emitter = new Emitter();
 
@@ -14,35 +15,26 @@ elasticSearchRequest.initialize({
 });
 
 var id = 0;
-var bar;
 
 var getNextId = function () {
   return ++id;
 };
 
-var totalElastic = 0;
-emitter.on('got_id3', function (audioFile, data) {
+emitter.on('got_id3', function (data) {
   if (!data) {
     return;
   }
 
   data.id = getNextId();
-  data.file = audioFile;
 
   //SUMARY
   if (data.id % 100 === 0) {
-    console.log(data.id, 'id3:', totalTagging, 'elastic:', totalElastic);
-    totalTagging = 0;
-    totalElastic = 0;
+    console.log(data.id);
   }
 
-  var startElastic = new Date().getTime();
 
   elasticSearchRequest.save(data).then(
     function (body) {
-      var endElastic = new Date().getTime();
-      totalElastic += (endElastic - startElastic);
-
       emitter.emit('elasticSearch_saved', body);
     },
     function (error) {
@@ -51,38 +43,19 @@ emitter.on('got_id3', function (audioFile, data) {
   );
 });
 
-
-// var timer;
-// emitter.on('elasticSearch_saved', function(body) {
-//   timer = setInterval(function(){
-//     bar.tick();
-//     if (bar.complete) {
-//       console.log('\ncomplete\n');
-//       clearInterval(timer);
-//       process.exit();
-//     }
-
-//   }, 1000);
-// });
-
-var totalTagging = 0;
-
 var readMetadata = function (audioFile, callback) {
-
-  var startTagging = new Date().getTime();
-
   // get ID3 tags
-  ffmetadata.read(audioFile.fullPath, function (err, data) {
-    if (err) {
-      console.error('Error reading metadata, err', err);
+  get_info.read(audioFile.fullPath).then(
+    function (avprobe_output) {
+      var data = convert_to_json.convert(avprobe_output);
+      callback();
+      emitter.emit('got_id3', data._values);
+    },
+    function (error) {
+      console.error('error:', audioFile.fullPath);
+      callback(error);
     }
-
-    var endTagging = new Date().getTime();
-    totalTagging += (endTagging - startTagging);
-
-    callback();
-    emitter.emit('got_id3', audioFile, data);
-  });
+  );
 
 };
 
@@ -110,20 +83,18 @@ var process_lines_to_files = function (allLines) {
   console.log('audio files', audioFiles.length);
 
 
-  bar = new ProgressBar('tagging [:bar] :percent :etas', {
-      total: audioFiles.length
-    , complete: '='
-    , incomplete: ' '
-    , width: 80
-    }
-  );
+  /*
+    executes one by one, SLOW
+  */
+  // emitter.on('elasticSearch_saved', function () {
+  //   readMetadata(audioFiles.shift());
+  // });
 
-  //TODO
-  //for (var i = 0; i < audioFiles.length; i++) {
-
-
-
-
+  // readMetadata(audioFiles.shift());
+  
+  /*
+    executes in pararell
+  */
   var async = require('async');
   var queue = async.queue(readMetadata, 5);
 
@@ -139,15 +110,9 @@ var process_lines_to_files = function (allLines) {
 
 };
 
-
-
-
-
-
 console.info('-----------------------------');
 console.info('MP3 importer to ElasticSearch');
 console.info('-----------------------------');
-
 
 // ** SET all folders here
 fsHelper.addFolder('/media/julio/4 H-MP3 (1,36 TB)/');

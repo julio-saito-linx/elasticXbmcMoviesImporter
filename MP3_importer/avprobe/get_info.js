@@ -2,24 +2,29 @@
 'use strict';
 
 var spawn = require('child_process').spawn,
+    q = require('q'),
     avprobe = spawn.bind(null, 'avprobe');
 
-module.exports.read = function (src, callback) {
+module.exports.read = function (src) {
+  var defer = q.defer();
   var proc = spawnRead(src);
 
   proc.stdout.on('data', function (data) {
-    callback(data);
-  }.bind(this));
-
-  proc.stderr.on('data', function (data) {
-    console.error('stderr: ' + data);
+    defer.resolve(data);
   });
 
-  proc.on('close', function () {
-    // console.log('child process exited with code ' + code);
-    // console.log('emits: all_files_txt_removed');
-  }.bind(this));
+  proc.stderr.on('data', function (data) {
+    console.error('ERROR', data);
+    defer.reject(data);
+  });
 
+  proc.on('close', function (code) {
+    if(code !== 0){
+      defer.reject(code);
+    }
+  });
+
+  return defer.promise;
 };
 
 // -- Child process helpers

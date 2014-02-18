@@ -1,10 +1,10 @@
 /* jshint node:true */
 'use strict';
 
-module.exports.convert = function ( avprobe_output ) {
+module.exports.convert = function (avprobe_output) {
   var Registry = require('../avprobe/registry');
-  var avprobe_output = avprobe_output + '';
-  var lines = avprobe_output.split('\n');
+  var avprobe_output_str = avprobe_output + '';
+  var lines = avprobe_output_str.split('\n');
 
   var tag = new Registry();
 
@@ -14,17 +14,17 @@ module.exports.convert = function ( avprobe_output ) {
 
     var myRe = /^(\w+?)=(.*)$/g;
     var fileSpecs = myRe.exec(line);
-    if(fileSpecs){
+    if (fileSpecs) {
       tag.register(fileSpecs[1], fileSpecs[2]);
     }
 
     myRe = /^TAG:(\w+?)=(.*)$/g;
     var tags = myRe.exec(line);
-    if(tags){
+    if (tags) {
       tag.register(tags[1], tags[2]);
     }
-  };
+  }
 
-  console.log(tag);
+  return tag;
 };
 
