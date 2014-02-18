@@ -1,11 +1,11 @@
-==XBMC Movies Importer
+#XBMC Movies Importer
 
 ##1) copy videodb.xml to "xbmcFile/" folder
   
     mkdir xbmcFile
     cp {where the file is}/videodb.xml xbmcFile/
 
-##2) star importing
+##2) start importing
 
     node import_xbmc_xml_to_elasticsearch.js
 
