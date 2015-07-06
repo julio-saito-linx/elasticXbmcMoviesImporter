@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-  var Emitter = require('wildemitter')
+  var Emitter = require('events').EventEmitter
     , _ = require('underscore')
     , fs = require('fs')
     //, q = require('q')
@@ -18,7 +18,7 @@
 
   var folders = [];
   //var allFiles = [];
-  
+
   _.extend(FsHelper.prototype, {
 
     addFolder: function (folder) {
@@ -44,7 +44,7 @@
 
       rm.on('close', function (code) {
         console.log('child process exited with code ' + code);
-        
+
         console.log('emits: all_files_txt_removed');
         this.emit('all_files_txt_removed');
       }.bind(this));
@@ -55,13 +55,13 @@
       console.log('executeUnixFind');
       if (folders.length > 0) {
         var folder = folders.shift();
-        
+
         console.log('appending', folder, '...');
 
         var spawn = require('child_process').spawn,
             out = fs.openSync('./allFiles.txt', 'a'),
             find  = spawn('find', [ folder], { stdio: ['ignore', out, 'ignore'] });
-        
+
         find.on('close', function () {
           this.executeUnixFind();
         }.bind(this));
@@ -74,13 +74,13 @@
 
     readFile: function () {
       var fileName = process.cwd() + '/allFiles.txt';
-      
+
       fs.exists(fileName, function (exists) {
         if (exists) {
           fs.stat(fileName, function (error, stats) {
             fs.open(fileName, 'r', function (error, fd) {
               var buffer = new Buffer(stats.size);
-       
+
               fs.read(fd, buffer, 0, buffer.length, null, function (error, bytesRead, buffer) {
                 var data = buffer.toString('utf8', 0, buffer.length);
                 this.emit('all_file_read', data);
@@ -96,7 +96,7 @@
     processFile: function (fullPath) {
       var splitFolders = fullPath.split('\/');
       var file = splitFolders[splitFolders.length - 1];
-      
+
       var splitDott = file.split('.');
       var extension = splitDott[splitDott.length - 1];
 

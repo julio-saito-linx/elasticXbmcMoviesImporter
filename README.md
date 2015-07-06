@@ -1,15 +1,12 @@
 #Elastic Search - Media Importer
 
-##Instalation:
+### importing MP3/Flac files to elastic search
 
-    http://www.java.com/pt_BR/download/manual.jsp#win
-    http://www.elasticsearch.org/download/
+```sh
+# start elasticsearch on azk
+azk start
 
-### importing XBMC exported file
-
-https://github.com/saitodisse/elasticXbmcMoviesImporter/blob/master/XBMC_importer/README.md
-
-### importing MP3/Flac
-
-https://github.com/saitodisse/elasticXbmcMoviesImporter/blob/master/MP3_importer/README.md
-
+# run importer
+# change folder to import: https://github.com/saitodisse/elasticXbmcMoviesImporter/blob/master/MP3_importer/README.md
+node MP3_importer/import_all_mp3_to_elastic_search.js
+```

@@ -11,7 +11,7 @@ var fsHelper = new FsHelper();
 var ElasticSearchRequest = require('../src/elasticSearchRequest');
 var elasticSearchRequest = new ElasticSearchRequest();
 elasticSearchRequest.initialize({
-  base_url: 'http://azk.dev:9200/music_library/song/'
+  base_url: 'http://elasticdatabase.dev.azk.io:9200/music_library/song/'
 });
 
 var id = 0;
@@ -115,13 +115,11 @@ console.info('MP3 importer to ElasticSearch');
 console.info('-----------------------------');
 
 // ** SET all folders here
-fsHelper.addFolder('/media/julio/4 H-MP3 (1,36 TB)/');
-fsHelper.addFolder('/media/julio/2GB, new/Mp3/');
-fsHelper.addFolder('/media/julio/Files/_MP3/');
+fsHelper.addFolder('/home/julio/Music/mp3');
 
 fsHelper.on('all_files_txt_removed', fsHelper.executeUnixFind);
 fsHelper.on('all_files_txt_created', read_all_files_txt, this);
 fsHelper.on('all_file_read', process_lines_to_files);
 
-//fsHelper.removeAllFilesTxt();
-read_all_files_txt();
+fsHelper.removeAllFilesTxt();
+//read_all_files_txt();
