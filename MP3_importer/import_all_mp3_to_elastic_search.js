@@ -11,7 +11,7 @@ var fsHelper = new FsHelper();
 var ElasticSearchRequest = require('../src/elasticSearchRequest');
 var elasticSearchRequest = new ElasticSearchRequest();
 elasticSearchRequest.initialize({
-  base_url: 'http://elasticdatabase.dev.azk.io:9200/music_library/song/'
+  base_url: 'http://elasticdatabase.dev.azk.io/music_library/song/'
 });
 
 var id = 0;

@@ -3,14 +3,14 @@ systems({
     depends: [],
     image: {docker: 'library/elasticsearch:latest'},
     shell: '/bin/bash',
-    command: 'elasticsearch',
+    command: 'elasticsearch -Des.http.cors.enabled=true',
     mounts: {
       '#{manifest.dir}' : path('.'),
       '/data/log'       : persistent('#{system.name}/log'),
       '/data/data'      : persistent('#{system.name}/data'),
     },
     ports:{
-      portA: '9200:9200/tcp',
+      http: '9200/tcp',
       portB: '9300:9300/tcp',
     },
     wait: {retry: 20, timeout: 1000},
