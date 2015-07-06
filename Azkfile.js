@@ -3,11 +3,10 @@ systems({
     depends: [],
     image: {docker: 'library/elasticsearch:latest'},
     shell: '/bin/bash',
-    command: 'elasticsearch -Des.http.cors.enabled=true',
+    command: 'elasticsearch -Des.http.cors.enabled=true -Des.config=/#{system.name}/yml/elasticsearch.yml',
     mounts: {
-      '#{manifest.dir}' : path('.'),
-      '/data/log'       : persistent('#{system.name}/log'),
-      '/data/data'      : persistent('#{system.name}/data'),
+      '#{system.name}' : path('.'),
+      '/data' : persistent('#{system.name}/data'),
     },
     ports:{
       http: '9200/tcp',
